@@ -1,16 +1,28 @@
 import { redirect } from "next/navigation";
 
+const TZ = "America/New_York";
+
 export default async function DiningMenuRedirector() {
   const now = new Date();
-  const currentDate =
-    `${now.getFullYear()}-` +
-    `${(now.getMonth() + 1).toString().padStart(2, "0")}-` +
-    now.getDate().toString().padStart(2, "0");
+  const parts = Object.fromEntries(
+    new Intl.DateTimeFormat("en-US", {
+      timeZone: TZ,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: false,
+    })
+      .formatToParts(now)
+      .filter((p) => p.type !== "literal")
+      .map((p) => [p.type, parseInt(p.value, 10)])
+  );
+  const currentDate = `${parts.year}-${String(parts.month).padStart(2, "0")}-${String(parts.day).padStart(2, "0")}`;
   const currentSlot = (() => {
-    const hour = now.getHours();
-    if (hour < 9 || (hour === 9 && now.getMinutes() < 30)) return "breakfast";
-    else if (hour < 14 || (hour === 14 && now.getMinutes() < 30))
-      return "lunch";
+    const { hour, minute } = parts;
+    if (hour < 9 || (hour === 9 && minute < 30)) return "breakfast";
+    else if (hour < 14 || (hour === 14 && minute < 30)) return "lunch";
     else return "dinner";
   })();
 
