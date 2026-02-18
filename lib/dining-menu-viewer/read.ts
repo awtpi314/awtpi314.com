@@ -2,7 +2,11 @@ import { MenuByDate, RawMenuData } from "@/types/dining-menu-viewer";
 
 export async function readDiningMenu() {
   const menuData: RawMenuData = await (
-    await fetch("https://diningdata.cedarville.edu/api/menus?days=5")
+    await fetch("https://diningdata.cedarville.edu/api/menus?days=5", {
+      next: {
+        revalidate: 3600,
+      },
+    })
   ).json();
 
   const normalized: MenuByDate = {};
