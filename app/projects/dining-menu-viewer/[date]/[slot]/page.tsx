@@ -1,4 +1,5 @@
 import { readDiningMenu } from "@/lib/dining-menu-viewer";
+import { MenuByDate } from "@/types/dining-menu-viewer";
 import {
   IconEgg,
   IconFish,
@@ -43,7 +44,18 @@ export default async function DiningMenuViewer({
   params: Promise<{ date: string; slot: string }>;
 }) {
   const { date, slot } = await params;
-  const menuData = await readDiningMenu();
+  let menuData: MenuByDate;
+  try {
+    menuData = await readDiningMenu();
+  } catch (e) {
+    return (
+      <main className="p-6 md:p-8 max-w-3xl mx-auto">
+        <p className="text-base-content/50 text-center">
+          Failed to load dining menu data from the remote server. Please try again later.
+        </p>
+      </main>
+    )
+  }
   const availableDates = Object.keys(menuData).sort();
   const currentMenu =
     menuData[date]?.filter(
